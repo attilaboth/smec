@@ -10,3 +10,5 @@ H2-Console is available: http://localhost:8088/h2-console/
 
 Retrieve all Accounts: http://localhost:8088/api/accounts
 Retrieve all Events: http://localhost:8088/api/events
+
+Add Account: http://localhost:8088/api/addAccount?accountName=ATTILA
