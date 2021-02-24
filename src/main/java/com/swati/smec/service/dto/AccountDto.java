@@ -1,10 +1,7 @@
 package com.swati.smec.service.dto;
 
 import com.swati.smec.entity.Event;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 

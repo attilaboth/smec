@@ -36,8 +36,9 @@ public class AccountController {
         //FIXME: check if it is a whitespace , or only numbers.. etc
         log.info(" addAccount() was called with param: {}", accountName);
 
-        Optional<Boolean> accountNameCheckOpt = accountService.findByAccountName(accountName);
-        if (accountNameCheckOpt.isPresent()) {
+        Optional<Account> byAccountName = accountService.findByAccountName(accountName);
+
+        if (byAccountName.isPresent()) {
             log.info("Account: {} already exists.", accountName);
             return ResponseEntity.ok().build();
         } else {
@@ -46,7 +47,6 @@ public class AccountController {
 
             return ResponseEntity.ok(savedAccount);
         }
-
     }
 
 }

@@ -12,3 +12,9 @@ Retrieve all Accounts: http://localhost:8088/api/accounts
 Retrieve all Events: http://localhost:8088/api/events
 
 Add Account: http://localhost:8088/api/addAccount?accountName=ATTILA
+Add Event to account: http://localhost:8088/api/addEventToAccount
+body example:
+{
+"accountName":"Attila",
+"eventName":"Synchronization Started"
+}

@@ -27,8 +27,8 @@ public class AccountServiceImpl implements AccountService {
         //FIXME: simplify this
         List<AccountDto> allAccountDto = new ArrayList<>();
         for (Account account : allAccounts) {
-            AccountDto map = modelMapper.map(account, AccountDto.class);
-            allAccountDto.add(map);
+            AccountDto accountDto = modelMapper.map(account, AccountDto.class);
+            allAccountDto.add(accountDto);
         }
 
         return allAccountDto;
@@ -41,8 +41,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Optional<Boolean> findByAccountName(String accountName) {
-        return accountRepository.findByAccountName(accountName);
+    public Optional<Account> findByAccountName(String accountName) {
+        return Optional.ofNullable(accountRepository.findByAccountName(accountName));
     }
 
 }

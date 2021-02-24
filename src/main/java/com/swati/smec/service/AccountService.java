@@ -12,5 +12,5 @@ public interface AccountService {
 
     AccountDto saveAccount(Account accountToBeSaved);
 
-    Optional<Boolean> findByAccountName(String accountName);
+    Optional<Account> findByAccountName(String accountName);
 }
