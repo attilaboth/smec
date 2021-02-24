@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "events")
+@Table(name = "EVENT")
 public class Event {
 
     @Id
@@ -25,8 +25,8 @@ public class Event {
     @CreationTimestamp
     private LocalDateTime dateCreated;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
 }

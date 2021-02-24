@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Table(name = "account")
+@Table(name = "ACCOUNT")
 public class Account {
 
     @Id
@@ -21,7 +21,7 @@ public class Account {
     @Column(name = "account_name")
     private String accountName;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private Set<Event> events = new HashSet<>();
 
 }
