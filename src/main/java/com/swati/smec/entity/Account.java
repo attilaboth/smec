@@ -51,12 +51,9 @@ public class Account implements Serializable {
 
     public Set<Event> getEvents() {
         if(events == null){
-             events = new HashSet<>();
+             events = Collections.synchronizedSet(new HashSet<>());
         }
         return events;
     }
 
-    public void setEvents(Set<Event> events) {
-        this.events = events;
-    }
 }

@@ -45,7 +45,7 @@ public class AccountController {
                     .collect(Collectors.groupingBy(e -> e.getDateCreated().toLocalDate()));
 
             List<EventStat> eventStatsList = new ArrayList<>();
-            eventsGroupByDate.forEach(((localDate, events) -> {
+            eventsGroupByDate.forEach((localDate, events) -> {
                 Map<String, Long> eventStatMap = events.stream()
                         .collect(Collectors.groupingBy(Event::getEventName, Collectors.counting()));
 
@@ -56,7 +56,7 @@ public class AccountController {
                             .count(value)
                             .build());
                 });
-            }));
+            });
 
             eventStatsList.forEach(System.out::println);
 
