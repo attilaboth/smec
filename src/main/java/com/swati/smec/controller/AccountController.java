@@ -41,9 +41,6 @@ public class AccountController {
             //TODO: move this method to accoutn, account knows its own stat ? or a util mapper?
             Set<Event> eventsSetForAccount = foundByAccountNameOpt.get().getEvents();
 
-            //Map<String, Long> eventOccurence = eventsSetForAccount.stream()
-            //      .collect(Collectors.groupingBy(Event::getEventName, Collectors.counting()));
-
             Map<LocalDate, List<Event>> eventsGroupByDate = eventsSetForAccount.stream()
                     .collect(Collectors.groupingBy(e -> e.getDateCreated().toLocalDate()));
 
@@ -52,14 +49,12 @@ public class AccountController {
                 Map<String, Long> eventStatMap = events.stream()
                         .collect(Collectors.groupingBy(Event::getEventName, Collectors.counting()));
 
-                eventStatMap.forEach((name, value) -> {
-                    EventStat eventStat = new EventStat(localDate);
-                    System.out.println(eventStat);
-
-                    System.out.println(name + ", " + value);
-                    eventStat.setEventType(name);
-                    eventStat.setCount(value);
-                    eventStatsList.add(eventStat);
+                eventStatMap.forEach((eventType, value) -> {
+                    eventStatsList.add(EventStat.builder()
+                            .day(localDate)
+                            .eventType(eventType)
+                            .count(value)
+                            .build());
                 });
             }));
 

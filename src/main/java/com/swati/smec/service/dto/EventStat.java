@@ -5,15 +5,12 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Data
+@Builder
 public class EventStat {
 
     private LocalDate day;
     private String eventType;
     private Long count;
-
-    public EventStat(LocalDate day) {
-        this.day = day;
-    }
 
     @Override
     public String toString() {
