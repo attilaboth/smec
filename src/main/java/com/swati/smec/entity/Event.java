@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
@@ -29,7 +30,7 @@ public class Event implements Serializable {
 
     @Column(name = "date_created")
     @CreationTimestamp
-    private Date dateCreated;
+    private LocalDateTime dateCreated;
 
     @JsonIgnore
     @ManyToOne
@@ -54,4 +55,12 @@ public class Event implements Serializable {
         return Objects.hash(eventName, dateCreated, account);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Event{");
+        sb.append("eventName='").append(eventName).append('\'');
+        sb.append(", dateCreated=").append(dateCreated);
+        sb.append('}');
+        return sb.toString();
+    }
 }
