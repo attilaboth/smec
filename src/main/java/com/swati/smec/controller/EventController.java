@@ -6,6 +6,7 @@ import com.swati.smec.service.AccountService;
 import com.swati.smec.service.EventService;
 import com.swati.smec.service.dto.EventDto;
 import com.swati.smec.service.dto.EventToAccount;
+import com.swati.smec.util.ValidatorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,10 +49,14 @@ public class EventController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<EventDto> addEventToAccount(@RequestBody EventToAccount eventToAccount) {
-        //TODO: take care of empty, space, and any illegal chars or numbers
         final String accountName = eventToAccount.getAccountName();
         final String eventName = eventToAccount.getEventName();
         log.info("Request to add Event: {} to Account: {}  received.", eventName, accountName);
+
+        if (ValidatorUtil.isNotValidParam(accountName))
+            return respondWithBadRequestEventDto(accountName, HttpStatus.BAD_REQUEST);
+        if (ValidatorUtil.isNotValidParam(eventName))
+            return respondWithBadRequestEventDto(eventName, HttpStatus.BAD_REQUEST);
 
         try {
             Optional<Account> byAccountName = accountService.findByAccountName(accountName);
@@ -81,4 +86,12 @@ public class EventController {
         }
     }
 
+    //FIXME
+    private ResponseEntity<EventDto> respondWithBadRequestEventDto(String invalidParam, HttpStatus httpStatus) {
+        //FIXME: make final static String
+        log.warn("{} is invalid parameter", invalidParam);
+        return ResponseEntity.status(httpStatus)
+                .header("Note", invalidParam + " is invalid parameter")
+                .build();
+    }
 }

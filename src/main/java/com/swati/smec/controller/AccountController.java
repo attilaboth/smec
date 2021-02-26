@@ -5,6 +5,7 @@ import com.swati.smec.service.AccountService;
 import com.swati.smec.service.dto.AccountDto;
 import com.swati.smec.service.dto.EventStat;
 import com.swati.smec.util.EventStatBuilder;
+import com.swati.smec.util.ValidatorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,11 +36,14 @@ public class AccountController {
 
     @GetMapping(value = "/statForAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<EventStat>> statisticForAccount(@RequestParam(required = true) String accountName) {
-        //TODO: take care of empty, space, and any illegal chars or numbers
         log.info("Request to statisticForAccount received for account {} ", accountName);
 
+        if (ValidatorUtil.isNotValidParam(accountName))
+            return respondWithBadRequestEventStat(accountName, HttpStatus.BAD_REQUEST);
+
         try {
-            Optional<Account> foundByAccountNameOpt = accountService.findByAccountName(accountName);
+            String validAccountName = accountName.trim();
+            Optional<Account> foundByAccountNameOpt = accountService.findByAccountName(validAccountName);
 
             if (foundByAccountNameOpt.isPresent()) {
                 final Account account = foundByAccountNameOpt.get();
@@ -47,9 +51,9 @@ public class AccountController {
 
                 return ResponseEntity.ok(EventStatBuilder.buildResponseStatisticForAccount(account.getEvents()));
             } else {
-                log.warn("{} was not found.", accountName);
+                log.warn("{} was not found.", validAccountName);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .header("Note", accountName + " was not found.")
+                        .header("Note", validAccountName + " was not found.")
                         .build();
             }
 
@@ -59,28 +63,30 @@ public class AccountController {
                     .header("Exception", "Exception occurred in AccountController statisticForAccount. Check log files.")
                     .build();
         }
-
     }
 
     @PostMapping(value = "/addAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<AccountDto> addAccount(@RequestParam(required = true) String accountName) {
-        //TODO: take care of empty, space, and any illegal chars or numbers
         log.info("Request to addAccount received for account {} ", accountName);
 
+        if (ValidatorUtil.isNotValidParam(accountName))
+            return respondWithBadRequestAccountDto(accountName, HttpStatus.BAD_REQUEST);
+
         try {
-            Optional<Account> byAccountName = accountService.findByAccountName(accountName);
+            String validAccountName = accountName.trim();
+            Optional<Account> byAccountName = accountService.findByAccountName(validAccountName);
 
             if (!byAccountName.isPresent()) {
-                AccountDto savedAccount = accountService.saveAccount(new Account(accountName));
+                AccountDto savedAccount = accountService.saveAccount(new Account(validAccountName));
                 log.info("{} was created", savedAccount);
 
                 return ResponseEntity.status(HttpStatus.CREATED)
                         .header("Note", savedAccount.getAccountName() + " account was created.")
                         .body(savedAccount);
             } else {
-                log.warn("Account: {} already exists.", accountName);
+                log.warn("Account: {} already exists.", validAccountName);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .header("Note", accountName + " already exists.")
+                        .header("Note", validAccountName + " already exists.")
                         .build();
             }
 
@@ -92,4 +98,21 @@ public class AccountController {
         }
     }
 
+    private ResponseEntity<AccountDto> respondWithBadRequestAccountDto(String invalidParam, HttpStatus httpStatus) {
+        log.warn("{} is invalid parameter.", invalidParam);
+        return ResponseEntity.status(httpStatus)
+                .header("Note", invalidParam + " is invalid parameter.")
+                .build();
+    }
+
+    //FIXME
+    private ResponseEntity<List<EventStat>> respondWithBadRequestEventStat(String invalidParam, HttpStatus httpStatus) {
+        log.warn("{} is invalid parameter.", invalidParam);
+        return ResponseEntity.status(httpStatus)
+                .header("Note", invalidParam + " is invalid parameter.")
+                .build();
+    }
+
 }
+
+
