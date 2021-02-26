@@ -6,11 +6,11 @@ import com.swati.smec.service.dto.AccountDto;
 import com.swati.smec.service.dto.EventStat;
 import com.swati.smec.util.EventStatBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,36 +35,54 @@ public class AccountController {
 
     @GetMapping(value = "/statForAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<EventStat>> statisticForAccount(@RequestParam(required = true) String accountName) {
+        log.debug("Request to statisticForAccount received for account {} ", accountName);
 
-        Optional<Account> foundByAccountNameOpt = accountService.findByAccountName(accountName);
-        if (foundByAccountNameOpt.isPresent()) {
+        try {
+            Optional<Account> foundByAccountNameOpt = accountService.findByAccountName(accountName);
 
-            List<EventStat> eventStatsList = EventStatBuilder.buildResponseStatisticForAccount(foundByAccountNameOpt.get().getEvents());
+            if (foundByAccountNameOpt.isPresent()) {
+                final Account account = foundByAccountNameOpt.get();
+                log.debug("{} is found.", account.getAccountName());
+                List<EventStat> eventStatsList = EventStatBuilder.buildResponseStatisticForAccount(account.getEvents());
 
+                log.debug("eventStatsList: {}", eventStatsList);
+                return ResponseEntity.ok(eventStatsList);
+            }
 
-            return ResponseEntity.ok(eventStatsList); //FIXME: handle
-
+        } catch (Exception e) {
+            log.error("Exception in AccountController.statisticForAccount: " + e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.ok(new ArrayList<>()); //FIXME: handle
-
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @RequestMapping(method = RequestMethod.POST,
-            value = "/addAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/addAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<AccountDto> addAccount(@RequestParam(required = true) String accountName) {
-        //FIXME: check if it is a whitespace , or only numbers.. etc
-        log.info(" addAccount() was called with param: {}", accountName);
+        //TODO: take care of empty, space, and any illegal chars or numbers
+        log.debug("Request to addAccount received for account {} ", accountName);
 
-        Optional<Account> byAccountName = accountService.findByAccountName(accountName);
+        try {
+            Optional<Account> byAccountName = accountService.findByAccountName(accountName);
 
-        if (byAccountName.isPresent()) {
-            log.info("Account: {} already exists.", accountName);
-            return ResponseEntity.ok().build();
-        } else {
-            AccountDto savedAccount = accountService.saveAccount(new Account(accountName));
-            log.info("Account: {} was added to the DB.", savedAccount.getAccountName());
+            if (byAccountName.isPresent()) {
+                log.info("Account: {} already exists.", accountName);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header("Note", accountName + " already exists.")
+                        .build();
+            } else {
+                AccountDto savedAccount = accountService.saveAccount(new Account(accountName));
+                log.info("{} was created", savedAccount);
 
-            return ResponseEntity.ok(savedAccount);
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .header("Note", savedAccount.getAccountName() + " account was created.")
+                        .body(savedAccount);
+            }
+
+        } catch (Exception exception) {
+            log.error("Exception in AccountController.addAccount: {}", exception);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .header("Exception", exception.getMessage())
+                    .build();
         }
     }
 
