@@ -13,8 +13,10 @@ import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "events")
 public class Event implements Serializable {
 

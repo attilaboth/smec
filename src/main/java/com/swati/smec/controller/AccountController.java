@@ -1,18 +1,18 @@
 package com.swati.smec.controller;
 
 import com.swati.smec.entity.Account;
-import com.swati.smec.entity.Event;
 import com.swati.smec.service.AccountService;
 import com.swati.smec.service.dto.AccountDto;
 import com.swati.smec.service.dto.EventStat;
+import com.swati.smec.util.EventStatBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -38,27 +38,9 @@ public class AccountController {
 
         Optional<Account> foundByAccountNameOpt = accountService.findByAccountName(accountName);
         if (foundByAccountNameOpt.isPresent()) {
-            //TODO: move this method to accoutn, account knows its own stat ? or a util mapper?
-            Set<Event> eventsSetForAccount = foundByAccountNameOpt.get().getEvents();
 
-            Map<LocalDate, List<Event>> eventsGroupByDate = eventsSetForAccount.stream()
-                    .collect(Collectors.groupingBy(e -> e.getDateCreated().toLocalDate()));
+            List<EventStat> eventStatsList = EventStatBuilder.buildResponseStatisticForAccount(foundByAccountNameOpt.get().getEvents());
 
-            List<EventStat> eventStatsList = new ArrayList<>();
-            eventsGroupByDate.forEach((localDate, events) -> {
-                Map<String, Long> eventStatMap = events.stream()
-                        .collect(Collectors.groupingBy(Event::getEventName, Collectors.counting()));
-
-                eventStatMap.forEach((eventType, value) -> {
-                    eventStatsList.add(EventStat.builder()
-                            .day(localDate)
-                            .eventType(eventType)
-                            .count(value)
-                            .build());
-                });
-            });
-
-            eventStatsList.forEach(System.out::println);
 
             return ResponseEntity.ok(eventStatsList); //FIXME: handle
 
