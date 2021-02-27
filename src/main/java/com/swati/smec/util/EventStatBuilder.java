@@ -33,4 +33,13 @@ public class EventStatBuilder {
         });
         return eventStatsList;
     }
+
+    public static List<EventStat> buildResponseStatisticForAccount(List<Event> eventList, String accountName) {
+
+        HashSet<Event> eventsSetForAccount = eventList.stream()
+                .filter(anEvent -> anEvent.getAccount().getAccountName().equalsIgnoreCase(accountName))
+                .collect(Collectors.toCollection(HashSet::new));
+
+        return buildResponseStatisticForAccount(eventsSetForAccount);
+    }
 }

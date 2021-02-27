@@ -13,6 +13,7 @@ public interface EventService {
 
     Optional<EventDto> saveEvent(Event eventToBeSaved);
 
-    Optional<List<EventDto>>findByDateCreatedIsAfter(LocalDateTime afterThislocalDateTime);
+    Optional<List<Event>>findByDateCreatedIsAfter(LocalDateTime afterThislocalDateTime);
+
 
 }

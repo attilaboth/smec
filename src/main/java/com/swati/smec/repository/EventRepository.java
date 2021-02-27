@@ -12,6 +12,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Boolean> findByAccount(Account account);
 
-    Optional<List<Event>> findByDateCreatedIsAfter(LocalDateTime afterThislocalDateTime);
+    Optional<List<Event>> findByDateCreatedIsAfter(LocalDateTime afterThisLocalDateTime);
 
 }

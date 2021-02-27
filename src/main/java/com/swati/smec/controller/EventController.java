@@ -13,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,23 +38,6 @@ public class EventController {
 
         } catch (Exception ex) {
             log.error("Exception in EventController getAllAccounts(): {}", ex.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping(value = "/getEventsForLast30Days", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<EventDto>> getEventsForLast30Days() {
-        log.info("Request to getEventsForLast30Days received.");
-        try {
-            Optional<List<EventDto>> byDateCreatedIsAfter = eventService.findByDateCreatedIsAfter(LocalDateTime.now().minus(30, ChronoUnit.DAYS));
-            if(byDateCreatedIsAfter.isPresent()){
-                return ResponseEntity.status(HttpStatus.OK).body(byDateCreatedIsAfter.get());
-            }else{
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-            }
-
-        } catch (Exception ex) {
-            log.error("Exception in EventController getEventsForLast30Days(): {}", ex.getLocalizedMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

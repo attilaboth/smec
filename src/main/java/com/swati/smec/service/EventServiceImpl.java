@@ -15,7 +15,7 @@ import java.util.Optional;
 @Service
 public class EventServiceImpl implements EventService {
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    private static final ModelMapper modelMapper = new ModelMapper();
 
     private EventRepository eventRepository;
 
@@ -45,18 +45,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Optional<List<EventDto>> findByDateCreatedIsAfter(LocalDateTime afterThislocalDateTime) {
-        List<EventDto> eventDtoList = new ArrayList<>();
-
-        Optional<List<Event>> byDateCreatedIsAfter = eventRepository.findByDateCreatedIsAfter(LocalDateTime.now().minus(30, ChronoUnit.DAYS));
-        if (byDateCreatedIsAfter.isPresent()) {
-            mapEventToEventDto(byDateCreatedIsAfter.get(), eventDtoList);
-        }
-
-        return Optional.of(eventDtoList);
+    public Optional<List<Event>> findByDateCreatedIsAfter(LocalDateTime afterThislocalDateTime) {
+        return eventRepository.findByDateCreatedIsAfter(LocalDateTime.now().minus(30, ChronoUnit.DAYS));
     }
 
-    private void mapEventToEventDto(List<Event> allEventsFound, List<EventDto> allEventDtos) {
+    public static void mapEventToEventDto(List<Event> allEventsFound, List<EventDto> allEventDtos) {
         for (Event event : allEventsFound) {
             EventDto eventDto = modelMapper.map(event, EventDto.class);
             allEventDtos.add(eventDto);
