@@ -59,15 +59,15 @@ Non-Functional Requirements
 -Deliver the application in a structure so that other developers can easily run the application and execute the tests
 
 
-It is explicitly not required at the moment, but we would like to ask
+#It is explicitly not required at the moment, but we would like to ask
 
-A.How we need to change the API or architecture if there would be 1000 accounts with 10000 events per day ? If changes are required, please describe the changed architecture and implications. 
+#A.How we need to change the API or architecture if there would be 1000 accounts with 10000 events per day ? If changes are required, please describe the changed architecture and implications. 
 - If we increase the number of threads accessing the endpoints then I would implement a Caching mechanism and also use batch insert into DB. In this case I also have to change the Entity ID Generation from (strategy = GenerationType.IDENTITY) to something else, because this type is not supporting batch insert with hibernate. 
 
-B.How would you scale-up the system  ?
+#B.How would you scale-up the system  ?
 - I would use Docker + Kubernetes. Definitely a cloud based environment for my Microservice. Then here are availbale autoscaling profiles in place already. When load is getting higher, Kubernetes recognizes this. Kubernetes knows about the application instances, monitors their loads, and automatically scale up and down.
 
-C.How would you Monitor the application ?
+#C.How would you Monitor the application ?
 - same answer as above.
 
 ==============================
