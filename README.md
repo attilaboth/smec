@@ -21,7 +21,7 @@ body example:
 
 
 
-===== CODING CHALLENGE =====
+# ===== CODING CHALLENGE =====
 Please, build an application based on Spring Boot that allows to manage accounts and collect events for an account. 
 
 The application clients are other applications that manage accounts and events through an API. We expect to have around 100 accounts and roughly 1000 events per account and day.
