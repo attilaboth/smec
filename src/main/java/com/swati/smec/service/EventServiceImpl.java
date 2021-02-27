@@ -6,6 +6,8 @@ import com.swati.smec.service.dto.EventDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,11 +26,9 @@ public class EventServiceImpl implements EventService {
     public List<EventDto> listAllEvents() {
         List<Event> allEventsFound = eventRepository.findAll();
         List<EventDto> allEventDtos = new ArrayList<>();
-        //FIXME: make this method generic
-        for (Event event : allEventsFound) {
-            EventDto eventDto = modelMapper.map(event, EventDto.class);
-            allEventDtos.add(eventDto);
-        }
+
+        mapEventToEventDto(allEventsFound, allEventDtos);
+
         return allEventDtos;
     }
 
@@ -37,11 +37,29 @@ public class EventServiceImpl implements EventService {
         EventDto eventDtoToReturn = null;
         Event savedEvent = eventRepository.save(eventToBeSaved);
 
-        if(savedEvent != null){
+        if (savedEvent != null) {
             eventDtoToReturn = modelMapper.map(savedEvent, EventDto.class);
 
         }
         return Optional.ofNullable(eventDtoToReturn);
     }
 
+    @Override
+    public Optional<List<EventDto>> findByDateCreatedIsAfter(LocalDateTime afterThislocalDateTime) {
+        List<EventDto> eventDtoList = new ArrayList<>();
+
+        Optional<List<Event>> byDateCreatedIsAfter = eventRepository.findByDateCreatedIsAfter(LocalDateTime.now().minus(30, ChronoUnit.DAYS));
+        if (byDateCreatedIsAfter.isPresent()) {
+            mapEventToEventDto(byDateCreatedIsAfter.get(), eventDtoList);
+        }
+
+        return Optional.of(eventDtoList);
+    }
+
+    private void mapEventToEventDto(List<Event> allEventsFound, List<EventDto> allEventDtos) {
+        for (Event event : allEventsFound) {
+            EventDto eventDto = modelMapper.map(event, EventDto.class);
+            allEventDtos.add(eventDto);
+        }
+    }
 }

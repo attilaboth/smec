@@ -7,6 +7,4 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Account findByAccountName(String name);
 
-
-
 }
