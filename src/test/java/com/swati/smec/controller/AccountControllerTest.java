@@ -84,7 +84,7 @@ class AccountControllerTest {
         List<EventStat> body = statResult.getBody();
         Assertions.assertNotNull(statResult);
         Assertions.assertEquals(2, body.size());
-        Assertions.assertEquals(body.get(1).getCount(), 2);
+        Assertions.assertEquals(2, body.get(1).getCount());
     }
 
 }

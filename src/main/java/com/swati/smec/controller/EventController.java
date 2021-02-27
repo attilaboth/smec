@@ -30,8 +30,8 @@ public class EventController {
     }
 
     @GetMapping(value = "/events", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<EventDto>> getAllAccounts() {
-        log.info("Request to getAllAccounts received.");
+    public ResponseEntity<List<EventDto>> getAllEvents() {
+        log.info("Request to getAllEvents received.");
         try {
 
             return ResponseEntity.ok(eventService.listAllEvents());
