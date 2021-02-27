@@ -21,8 +21,8 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class EventController {
 
-    private EventService eventService;
-    private AccountService accountService;
+    private final EventService eventService;
+    private final AccountService accountService;
 
     public EventController(EventService eventService, AccountService accountService) {
         this.eventService = eventService;
@@ -31,17 +31,14 @@ public class EventController {
 
     @GetMapping(value = "/events", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<EventDto>> getAllAccounts() {
-        log.info("Request to getAllAccounts received");
-
+        log.info("Request to getAllAccounts received.");
         try {
-            List<EventDto> events = eventService.listAllEvents();
-            return ResponseEntity.ok(events);
+
+            return ResponseEntity.ok(eventService.listAllEvents());
 
         } catch (Exception ex) {
             log.error("Exception in EventController getAllAccounts(): {}", ex.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Exception", "Exception occurred in EventController getAllAccounts(). Check log files.")
-                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -53,10 +50,14 @@ public class EventController {
         final String eventName = eventToAccount.getEventName();
         log.info("Request to add Event: {} to Account: {}  received.", eventName, accountName);
 
-        if (ValidatorUtil.isNotValidParam(accountName))
-            return respondWithBadRequestEventDto(accountName, HttpStatus.BAD_REQUEST);
-        if (ValidatorUtil.isNotValidParam(eventName))
-            return respondWithBadRequestEventDto(eventName, HttpStatus.BAD_REQUEST);
+        if (ValidatorUtil.isNotValidParam(accountName)) {
+            log.warn("{} is invalid parameter.", accountName);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        if (ValidatorUtil.isNotValidParam(eventName)) {
+            log.warn("{} is invalid parameter.", eventName);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         try {
             Optional<Account> byAccountName = accountService.findByAccountName(accountName);
@@ -74,24 +75,12 @@ public class EventController {
                 return ResponseEntity.status(HttpStatus.CREATED).body(eventDto);
             } else {
                 log.warn("{} was not found.", accountName);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .header("Note", accountName + " was not found.")
-                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception exception) {
             log.error("Exception in EventController addEventToAccount: {}", exception.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Exception", "Exception occurred in EventController addEventToAccount. Check log files.")
-                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    //FIXME
-    private ResponseEntity<EventDto> respondWithBadRequestEventDto(String invalidParam, HttpStatus httpStatus) {
-        //FIXME: make final static String
-        log.warn("{} is invalid parameter", invalidParam);
-        return ResponseEntity.status(httpStatus)
-                .header("Note", invalidParam + " is invalid parameter")
-                .build();
-    }
 }

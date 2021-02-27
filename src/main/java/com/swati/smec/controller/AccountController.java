@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class AccountController {
 
-    private AccountService accountService;
+    private final AccountService accountService;
 
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
@@ -35,11 +35,13 @@ public class AccountController {
     }
 
     @GetMapping(value = "/statForAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<List<EventStat>> statisticForAccount(@RequestParam(required = true) String accountName) {
+    public ResponseEntity<List<EventStat>> statisticForAccount(@RequestParam String accountName) {
         log.info("Request to statisticForAccount received for account {} ", accountName);
 
-        if (ValidatorUtil.isNotValidParam(accountName))
-            return respondWithBadRequestEventStat(accountName, HttpStatus.BAD_REQUEST);
+        if (ValidatorUtil.isNotValidParam(accountName)) {
+            log.warn("{} is invalid parameter.", accountName);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         try {
             String validAccountName = accountName.trim();
@@ -52,65 +54,41 @@ public class AccountController {
                 return ResponseEntity.ok(EventStatBuilder.buildResponseStatisticForAccount(account.getEvents()));
             } else {
                 log.warn("{} was not found.", validAccountName);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .header("Note", validAccountName + " was not found.")
-                        .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
         } catch (Exception ex) {
             log.error("Exception in AccountController statisticForAccount: " + ex.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Exception", "Exception occurred in AccountController statisticForAccount. Check log files.")
-                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PostMapping(value = "/addAccount", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<AccountDto> addAccount(@RequestParam(required = true) String accountName) {
+    public ResponseEntity<AccountDto> addAccount(@RequestParam String accountName) {
         log.info("Request to addAccount received for account {} ", accountName);
 
-        if (ValidatorUtil.isNotValidParam(accountName))
-            return respondWithBadRequestAccountDto(accountName, HttpStatus.BAD_REQUEST);
+        if (ValidatorUtil.isNotValidParam(accountName)) {
+            log.warn("{} is invalid parameter.", accountName);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
         try {
             String validAccountName = accountName.trim();
             Optional<Account> byAccountName = accountService.findByAccountName(validAccountName);
 
-            if (!byAccountName.isPresent()) {
+            if (byAccountName.isPresent()) {
+                log.warn("Account: {} already exists.", validAccountName);
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            } else {
                 AccountDto savedAccount = accountService.saveAccount(new Account(validAccountName));
                 log.info("{} was created", savedAccount);
-
-                return ResponseEntity.status(HttpStatus.CREATED)
-                        .header("Note", savedAccount.getAccountName() + " account was created.")
-                        .body(savedAccount);
-            } else {
-                log.warn("Account: {} already exists.", validAccountName);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .header("Note", validAccountName + " already exists.")
-                        .build();
+                return ResponseEntity.status(HttpStatus.CREATED).body(savedAccount);
             }
 
         } catch (Exception exception) {
             log.error("Exception in AccountController addAccount: {}", exception.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header("Exception", "Exception occurred in AccountController addAccount. Check log files.")
-                    .build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    private ResponseEntity<AccountDto> respondWithBadRequestAccountDto(String invalidParam, HttpStatus httpStatus) {
-        log.warn("{} is invalid parameter.", invalidParam);
-        return ResponseEntity.status(httpStatus)
-                .header("Note", invalidParam + " is invalid parameter.")
-                .build();
-    }
-
-    //FIXME
-    private ResponseEntity<List<EventStat>> respondWithBadRequestEventStat(String invalidParam, HttpStatus httpStatus) {
-        log.warn("{} is invalid parameter.", invalidParam);
-        return ResponseEntity.status(httpStatus)
-                .header("Note", invalidParam + " is invalid parameter.")
-                .build();
     }
 
 }
