@@ -69,10 +69,15 @@ public class EventController {
                 Event eventTobeSaved = new Event(eventName, account);
                 account.getEvents().add(eventTobeSaved);
 
-                EventDto eventDto = eventService.saveEvent(eventTobeSaved);
-                log.info("Event: {} was saved to Account: {} ", eventDto.getEventName(), eventDto.getAccount().getAccountName());
+                Optional<EventDto> eventDtoOpt = eventService.saveEvent(eventTobeSaved);
+                if(eventDtoOpt.isPresent()){
+                    EventDto eventDto = eventDtoOpt.get();
+                    log.info("Event: {} was saved to Account: {} ", eventDto.getEventName(), eventDto.getAccount().getAccountName());
+                    return ResponseEntity.status(HttpStatus.CREATED).body(eventDto);
+                }else{
+                    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+                }
 
-                return ResponseEntity.status(HttpStatus.CREATED).body(eventDto);
             } else {
                 log.warn("{} was not found.", accountName);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

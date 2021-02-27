@@ -2,22 +2,25 @@ package com.swati.smec.controller;
 
 import com.swati.smec.entity.Account;
 import com.swati.smec.entity.Event;
+import com.swati.smec.helper.TestDataBuilder;
 import com.swati.smec.service.AccountService;
 import com.swati.smec.service.dto.AccountDto;
+import com.swati.smec.service.dto.EventStat;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 class AccountControllerTest {
 
@@ -35,27 +38,53 @@ class AccountControllerTest {
     @Test
     void testGetAllAccounts() {
         //given
-        List<Event> eventsList = Arrays.asList(new Event("eventName", new Account("accountName")));
-        HashSet<Event> eventHashSet = new HashSet<>(eventsList);
-        List<AccountDto> accountDtos = Arrays.asList(new AccountDto("accountName", eventHashSet));
+        LocalDateTime now = LocalDateTime.now();
+        Account account = TestDataBuilder.buildAnAccount("TestAccount");
+        Set<Event> eventsSetForAccount = Set.copyOf(Arrays.asList(
+                TestDataBuilder.buildAnEvent(account, "Synchonization completed", now),
+                TestDataBuilder.buildAnEvent(account, "Synchonization started", TestDataBuilder.getTimestampUnitBefore(23, ChronoUnit.HOURS)),
+                TestDataBuilder.buildAnEvent(account, "Synchonization started", TestDataBuilder.getTimestampUnitBefore(23, ChronoUnit.HOURS))
+                )
+        );
+        account.getEvents().addAll(eventsSetForAccount);
+        List<AccountDto> accountDtoList = new ArrayList<>();
+        accountDtoList.add(new ModelMapper().map(account, AccountDto.class));
 
         //when
-        when(accountService.getAllAccounts()).thenReturn(accountDtos);
+        when(accountService.getAllAccounts()).thenReturn(accountDtoList);
 
         ResponseEntity<List<AccountDto>> result = accountController.getAllAccounts();
 
         //then
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
-        assertEquals(accountDtos, result.getBody());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.getBody().size());
     }
 
-    //@Test
-    void testAddAccount() {
-        when(accountService.saveAccount(any())).thenReturn(new AccountDto("accountName", new HashSet<Event>(Arrays.asList(new Event("eventName", new Account("accountName"))))));
-        when(accountService.findByAccountName(anyString())).thenReturn(null);
+    @Test
+    void testStatisticForAccount() {
+        //given
+        LocalDateTime now = LocalDateTime.now();
+        Account account = TestDataBuilder.buildAnAccount("TestAccount");
+        Set<Event> eventsSetForAccount = Set.copyOf(Arrays.asList(
+                TestDataBuilder.buildAnEvent(account, "Synchonization completed", now),
+                TestDataBuilder.buildAnEvent(account, "Synchonization started", TestDataBuilder.getTimestampUnitBefore(23, ChronoUnit.HOURS)),
+                TestDataBuilder.buildAnEvent(account, "Synchonization started", TestDataBuilder.getTimestampUnitBefore(22, ChronoUnit.HOURS))
+                )
+        );
+        account.getEvents().addAll(eventsSetForAccount);
+        List<AccountDto> accountDtoList = new ArrayList<>();
+        accountDtoList.add(new ModelMapper().map(account, AccountDto.class));
 
-        ResponseEntity<AccountDto> result = accountController.addAccount("accountName");
-        assertEquals(null, result);
+        //when
+        when(accountService.findByAccountName(anyString())).thenReturn(Optional.ofNullable(account));
+
+        ResponseEntity<List<EventStat>> statResult = accountController.statisticForAccount("TestAccount");
+
+        //then
+        List<EventStat> body = statResult.getBody();
+        Assertions.assertNotNull(statResult);
+        Assertions.assertEquals(2, body.size());
+        Assertions.assertEquals(body.get(1).getCount(), 2);
     }
+
 }

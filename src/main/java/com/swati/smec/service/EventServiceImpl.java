@@ -1,6 +1,5 @@
 package com.swati.smec.service;
 
-import com.swati.smec.entity.Account;
 import com.swati.smec.entity.Event;
 import com.swati.smec.repository.EventRepository;
 import com.swati.smec.service.dto.EventDto;
@@ -34,9 +33,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto saveEvent(Event eventToBeSaved) {
+    public Optional<EventDto> saveEvent(Event eventToBeSaved) {
+        EventDto eventDtoToReturn = null;
         Event savedEvent = eventRepository.save(eventToBeSaved);
-        return modelMapper.map(savedEvent, EventDto.class);
+
+        if(savedEvent != null){
+            eventDtoToReturn = modelMapper.map(savedEvent, EventDto.class);
+
+        }
+        return Optional.ofNullable(eventDtoToReturn);
     }
 
 }
