@@ -49,17 +49,25 @@ Events should be deleted after 30 days, but not vanish from the statistical data
 
 Non-Functional Requirements
 
-The application should be as simple as possible, but production ready
-It can be built and tested on our CI server (our CI server can do command line calls and capture the log output)
-The API is tested and tests are executable by developers and the CI server
-The application is ready to be deployed to our Kubernetes Cluster
-No API security is required
-Take your own decisions on API design
-Deliver the full application code project in a remote repository or as .zip file
-Deliver the application in a structure so that other developers can easily run the application and execute the tests
+-The application should be as simple as possible, but production ready
+-It can be built and tested on our CI server (our CI server can do command line calls and capture the log output)
+-The API is tested and tests are executable by developers and the CI server
+-The application is ready to be deployed to our Kubernetes Cluster
+-No API security is required
+-Take your own decisions on API design
+-Deliver the full application code project in a remote repository or as .zip file
+-Deliver the application in a structure so that other developers can easily run the application and execute the tests
+
+
 It is explicitly not required at the moment, but we would like to ask
 
- How we need to change the API or architecture if there would be 1000 accounts with 10000 events per day ? If changes are required, please describe the changed architecture and implications. 
- How would you scale-up the system  ?
- How would you Monitor the application ?
+A.How we need to change the API or architecture if there would be 1000 accounts with 10000 events per day ? If changes are required, please describe the changed architecture and implications. 
+- If we increase the number of threads accessing the endpoints then I would implement a Caching mechanism and also use batch insert into DB. In this case I also have to change the Entity ID Generation from (strategy = GenerationType.IDENTITY) to something else, because this type is not supporting batch insert with hibernate. 
+
+B.How would you scale-up the system  ?
+- I would use Docker + Kubernetes. Definitely a cloud based environment for my Microservice. Then here are availbale autoscaling profiles in place already. When load is getting higher, Kubernetes recognizes this. Kubernetes knows about the application instances, monitors their loads, and automatically scale up and down.
+
+C.How would you Monitor the application ?
+- same answer as above.
+
 ==============================
