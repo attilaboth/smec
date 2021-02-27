@@ -9,16 +9,17 @@ H2-Console is available: http://localhost:8088/h2-console/
 Retrieve all Accounts: http://localhost:8088/api/accounts
 Retrieve all Events: http://localhost:8088/api/events
 
-Add Account: http://localhost:8088/api/addAccount?accountName=ATTILA
+Add Account: http://localhost:8088/api/addAccount?accountName=ACCOUNTNAME
 
 Add Event to account: http://localhost:8088/api/addEventToAccount
 
 body example:
 {
-"accountName":"Attila",
+"accountName":"ACCOUNTNAME",
 "eventName":"Synchronization Started"
 }
 
+Get statistical data for an account: http://localhost:8088/api/statForAccount?accountName=ACCOUNTNAME
 
 
 # Challenge description
