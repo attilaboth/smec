@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ class EventStatBuilderTest {
         LocalDateTime now = LocalDateTime.now();
 
         Account account = TestDataBuilder.buildAnAccount("TestAccount");
-        Set<Event> eventsSetForAccount = Set.copyOf(Arrays.asList(
+        Set<Event> eventsSetForAccount = new HashSet<>(Arrays.asList(
                 TestDataBuilder.buildAnEvent(account, "Synchonization completed", now),
                 TestDataBuilder.buildAnEvent(account, "Synchonization started", TestDataBuilder.getTimestampUnitBefore(23, ChronoUnit.HOURS)),
                 TestDataBuilder.buildAnEvent(account, "Synchonization started", TestDataBuilder.getTimestampUnitBefore(23, ChronoUnit.HOURS))

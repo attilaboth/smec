@@ -1,5 +1,14 @@
 # Coding Challenge Attila Both for Smarter Ecommerce
 
+In case of questions please contact me atts.both@gmail.com
+
+Java version: 9
+
+After cloning the project to your IntelliJ IDE execute: 
+1. mvn clean package
+2. mvn spring-boot:run
+3. alternatively open terminal cd into target dir, then execute: java -jar smec-0.0.1-SNAPSHOT.jar
+
 
 Back-end runs on http://localhost:8088/
 
@@ -21,6 +30,7 @@ body example:
 
 Get statistical data for an account: http://localhost:8088/api/statForAccount?accountName=ACCOUNTNAME
 
+Get LAST_30_DAYS statistical data for an account: http://localhost:8088/api/statisticForAccountForLastDays?accountName=ACCOUNTNAME
 
 # Challenge description
 Please, build an application based on Spring Boot that allows to manage accounts and collect events for an account. 
