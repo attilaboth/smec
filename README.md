@@ -82,7 +82,7 @@ C.How would you Monitor the application ?
 
 ==============================
 
-#Evaluation: 
+# Evaluation: 
 Among the positive aspects, I can mention the usage of general layering pattern, easy to ready and clean code, usage of Lombok and good usage of Spring/Spring Boot.
 
 Among the less positive aspects, I can refer to a debatable usage of DTO pattern, no implementation of the db cleanup, usage of LocalDateTime, no Dockerfile, no K8s deployments, and all events are delivered with an account so that they are all loaded into memory. Those are just some exemplifying points.
